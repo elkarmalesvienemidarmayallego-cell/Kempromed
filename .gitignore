@@ -1,0 +1,11 @@
+# Python / Entorno
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+.env
+
+# Docker / Logs
+*.log
+.DS_Store
