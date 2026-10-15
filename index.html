@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tom&Alx Space — Interactive Gaming & Sandbox Engine</title>
+  <style>
+    :root {
+      --bg: #090d16;
+      --card: #131926;
+      --border: #20293a;
+      --accent: #6366f1;
+      --accent-glow: rgba(99, 102, 241, 0.3);
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --text: #f8fafc;
+      --text-muted: #64748b;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 16px;
+    }
+
+    .container { width: 100%; max-width: 1100px; }
+
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 24px;
+    }
+
+    .brand { display: flex; align-items: center; gap: 12px; }
+
+    .brand-logo {
+      width: 40px; height: 40px;
+      background: linear-gradient(135deg, var(--accent), #818cf8);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; color: #fff; font-size: 1.2rem;
+      box-shadow: 0 0 16px var(--accent-glow);
+    }
+
+    .brand-title h1 { font-size: 1.25rem; font-weight: 600; }
+    .brand-title p { font-size: 0.8rem; color: var(--text-muted); }
+
+    .status-badge {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 0.8rem; color: var(--success);
+      background: rgba(16, 185, 129, 0.1);
+      padding: 6px 14px; border-radius: 20px;
+      border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+
+    .dot { width: 8px; height: 8px; background: var(--success); border-radius: 50%; }
+
+    /* Grid Layout */
+    .grid { display: grid; grid-template-columns: 340px 1fr; gap: 24px; }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px; padding: 24px;
+    }
+
+    .card-title {
+      font-size: 0.95rem; font-weight: 600; margin-bottom: 18px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+
+    /* Formulario */
+    .form-group { margin-bottom: 14px; }
+    label { display: block; font-size: 0.78rem; color: var(--text-muted); margin-bottom: 6px; }
+
+    input {
+      width: 100%; padding: 11px 14px; background: var(--bg);
+      border: 1px solid var(--border); border-radius: 8px;
+      color: var(--text); font-size: 0.875rem;
+    }
+
+    input:focus { outline: none; border-color: var(--accent); }
+
+    .btn-primary {
+      width: 100%; padding: 12px; background: var(--accent);
+      color: #fff; border: none; border-radius: 8px; font-weight: 600;
+      cursor: pointer; margin-top: 8px; transition: opacity 0.2s;
+    }
+
+    .btn-primary:hover { opacity: 0.9; }
+
+    /* Módulo de Juego / Gaming Arena */
+    .game-arena {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      margin-top: 16px;
+    }
+
+    .game-screen {
+      height: 180px;
+      background: #05070a;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .game-score {
+      font-family: var(--font-mono);
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: var(--accent);
+      text-shadow: 0 0 12px var(--accent-glow);
+    }
+
+    .game-status {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .btn-play-action {
+      background: linear-gradient(135deg, var(--accent), #4f46e5);
+      color: #fff; border: none;
+      padding: 12px 28px; border-radius: 8px;
+      font-weight: 700; cursor: pointer;
+      font-size: 0.9rem;
+      box-shadow: 0 4px 14px var(--accent-glow);
+    }
+
+    .btn-play-action:active { transform: scale(0.97); }
+
+    /* Tabla de Sesiones */
+    table { width: 100%; border-collapse: collapse; text-align: left; }
+    th { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; padding: 10px 12px; border-bottom: 1px solid var(--border); }
+    td { padding: 14px 12px; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+
+    .user-box .email { font-weight: 500; }
+    .user-box .phone { font-size: 0.75rem; color: var(--text-muted); }
+
+    .timer-badge {
+      font-family: var(--font-mono); font-size: 0.85rem; color: var(--warning);
+      font-weight: 600; background: rgba(245, 158, 11, 0.1); padding: 4px 8px; border-radius: 6px;
+    }
+
+    .token-badge {
+      font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent);
+      background: rgba(99, 102, 241, 0.1); padding: 3px 6px; border-radius: 4px;
+    }
+
+    .btn-pay {
+      background: linear-gradient(135deg, #10b981, #059669); color: #fff;
+      border: none; padding: 6px 12px; border-radius: 6px; font-size: 0.78rem;
+      font-weight: 600; cursor: pointer;
+    }
+
+    /* Modal de Checkout */
+    .modal-overlay {
+      display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(9, 13, 22, 0.88); backdrop-filter: blur(6px);
+      align-items: center; justify-content: center; z-index: 100;
+    }
+
+    .modal {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 16px; padding: 28px; width: 100%; max-width: 420px;
+    }
+
+    .modal-header { display: flex; justify-content: space-between; margin-bottom: 16px; }
+    .btn-close { background: transparent; border: none; color: var(--text-muted); cursor: pointer; font-size: 1.2rem; }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header class="header">
+      <div class="brand">
+        <div class="brand-logo">T</div>
+        <div class="brand-title">
+          <h1>Tom&Alx Space</h1>
+          <p>Gaming Sandbox & License Engine</p>
+        </div>
+      </div>
+      <div class="status-badge">
+        <span class="dot"></span>
+        Entorno de Juego Robusto Activo
+      </div>
+    </header>
+
+    <div class="grid">
+      <!-- Izquierda: Formulario + Arena de Juego -->
+      <div>
+        <div class="card">
+          <div class="card-title">
+            <span>Alta Jugador Demo (10 Min)</span>
+          </div>
+
+          <form id="startSessionForm">
+            <div class="form-group">
+              <label for="email">Correo Electrónico</label>
+              <input type="email" id="email" placeholder="jugador@empresa.com" required>
+            </div>
+
+            <div class="form-group">
+              <label for="phone">Teléfono Móvil</label>
+              <input type="tel" id="phone" placeholder="+52 55 0000 0000" required>
+            </div>
+
+            <button type="submit" class="btn-primary">Activar Sesión de 10 Minutos</button>
+          </form>
+        </div>
+
+        <!-- Arena Interactiva de Juego -->
+        <div class="card" style="margin-top: 20px;">
+          <div class="card-title">
+            <span>Arena de Juego Interactivo</span>
+            <span style="font-size:0.75rem; color:var(--text-muted);" id="activeUserLabel">Sin usuario activo</span>
+          </div>
+
+          <div class="game-arena">
+            <div class="game-screen">
+              <div class="game-score" id="scoreDisplay">0000</div>
+              <div class="game-status" id="gameStatus">Presiona "Activar Sesión" para comenzar a jugar</div>
+            </div>
+            <button class="btn-play-action" id="btnPlay" disabled onclick="playInteractive()">¡EJECUTAR JUGADA (RNG)!</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Derecha: Control de Sesiones y Licenciamiento -->
+      <div class="card">
+        <div class="card-title">
+          <span>Lobby de Sesiones Activas & Licencias</span>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Usuario</th>
+              <th>Token Async</th>
+              <th>Prueba 10 Min</th>
+              <th>Acción Comerciales</th>
+            </tr>
+          </thead>
+          <tbody id="sessionBody">
+            <tr>
+              <td>
+                <div class="user-box">
+                  <div class="email">inversor.demo@tamalex.io</div>
+                  <div class="phone">+52 55 9876 5432</div>
+                </div>
+              </td>
+              <td><span class="token-badge">TMX-KEY-9981</span></td>
+              <td><span class="timer-badge" id="demoTimer">10:00</span></td>
+              <td>
+                <button class="btn-pay" onclick="openCheckout('inversor.demo@tamalex.io')">Elevar a Licencia</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Checkout / Pasarela -->
+  <div class="modal-overlay" id="paymentModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Licencia Tom&Alx Space</h3>
+        <button class="btn-close" onclick="closeCheckout()">&times;</button>
+      </div>
+      <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:16px;">
+        Asignando acceso permanente para: <br><strong id="modalUser" style="color:var(--text);"></strong>
+      </p>
+
+      <div style="background:var(--bg); padding:16px; border-radius:8px; border:1px solid var(--border); margin-bottom:20px;">
+        <div style="display:flex; justify-content:space-between; font-size:0.9rem; margin-bottom:8px;">
+          <span>Suscripción Mensual Full Node</span>
+          <strong>$299 USD</strong>
+        </div>
+        <div style="font-size:0.75rem; color:var(--text-muted);">Acceso illimitado a motor probabilístico y API de telemetría.</div>
+      </div>
+
+      <button class="btn-primary" style="background:var(--success);" onclick="processPayment()">Confirmar y Redirigir a Pasarela</button>
+    </div>
+  </div>
+
+  <script>
+    let timerInterval = null;
+    let score = 0;
+    let secondsLeft = 600; // 10 minutos
+
+    // Alta e inicio de la sesión interactiva
+    document.getElementById('startSessionForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const email = document.getElementById('email').value;
+      const phone = document.getElementById('phone').value;
+      const token = 'TMX-KEY-' + Math.floor(1000 + Math.random() * 9000);
+
+      // Actualizar interfaz
+      document.getElementById('activeUserLabel').innerText = email;
+      document.getElementById('gameStatus').innerText = 'Sesión Activa — Entropía en tiempo real';
+      document.getElementById('btnPlay').disabled = false;
+
+      // Reiniciar juego
+      score = 0;
+      document.getElementById('scoreDisplay').innerText = '0000';
+
+      // Agregar a tabla de sesiones
+      const tbody = document.getElementById('sessionBody');
+      const tr = document.createElement('tr');
+
+      tr.innerHTML = `
+        <td>
+          <div class="user-box">
+            <div class="email">${email}</div>
+            <div class="phone">${phone}</div>
+          </div>
+        </td>
+        <td><span class="token-badge">${token}</span></td>
+        <td><span class="timer-badge" id="liveTimer">10:00</span></td>
+        <td>
+          <button class="btn-pay" onclick="openCheckout('${email}')">Elevar a Licencia</button>
+        </td>
+      `;
+
+      tbody.prepend(tr);
+      this.reset();
+
+      // Iniciar cuenta regresiva de 10 minutos reales
+      start10MinTimer();
+    });
+
+    // Temporizador de 10 Minutos
+    function start10MinTimer() {
+      clearInterval(timerInterval);
+      secondsLeft = 600;
+
+      timerInterval = setInterval(() => {
+        secondsLeft--;
+        const mins = Math.floor(secondsLeft / 60).toString().padStart(2, '0');
+        const secs = (secondsLeft % 60).toString().padStart(2, '0');
+        const formatted = `${mins}:${secs}`;
+
+        const timerElem = document.getElementById('liveTimer') || document.getElementById('demoTimer');
+        if (timerElem) timerElem.innerText = formatted;
+
+        if (secondsLeft <= 0) {
+          clearInterval(timerInterval);
+          document.getElementById('gameStatus').innerText = 'Prueba de 10 min finalizada. Solicite licenciamiento.';
+          document.getElementById('btnPlay').disabled = true;
+          alert('El tiempo de prueba de 10 minutos ha expirado.');
+        }
+      }, 1000);
+    }
+
+    // Acción de juego interactivo (Simula tirada/acción RNG)
+    function playInteractive() {
+      const points = Math.floor(Math.random() * 250) + 50;
+      score += points;
+      document.getElementById('scoreDisplay').innerText = score.toString().padStart(4, '0');
+      document.getElementById('gameStatus').innerText = `Última jugada: +${points} pts (Telemetría OK)`;
+    }
+
+    // Pasarela / Checkout
+    function openCheckout(email) {
+      document.getElementById('modalUser').innerText = email;
+      document.getElementById('paymentModal').style.display = 'flex';
+    }
+
+    function closeCheckout() {
+      document.getElementById('paymentModal').style.display = 'none';
+    }
+
+    function processPayment() {
+      alert('Pasarela vinculada. Redirigiendo al procesamiento de pago...');
+      closeCheckout();
+    }
+  </script>
+
+</body>
+</html>
